@@ -2,18 +2,27 @@ import json
 import os
 import torch
 
+import numpy as np
+
 from torch import nn
 
-from dataloader import getDataset
+from torch.utils.data import DataLoader
+
+from dataloader import getDataset, collate_fn
 from model import BERTClass
+
+from tqdm import tqdm
 
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
+with open("config.json", "r") as f:
+    configJSON = json.load(f)
+config = configJSON["config"]
+params = configJSON["params"]
+
+
 
 def loadDataLoaders():
-    with open("config.json", "r") as f:
-        configJSON = json.load(f)
-    config = configJSON["config"]
     datasets = {
         "train": {},
         "valid": {},
@@ -135,8 +144,6 @@ def test(model, loader, tags_vals):
     return tag_list, pred_list, label_list
 
 if __name__ == "__main__":
-    with open("config.json", "r") as f:
-        configJSON = json.load(f)
 
     model  = BERTClass()
     optimizer = torch.optim.Adam(params =  model.parameters(), lr=configJSON["learning_rate"])
@@ -146,4 +153,4 @@ if __name__ == "__main__":
 
     dataloaders = loadDataLoaders()
 
-    train(model, optimizer, lossFn, dataloaders["valid"]["NER"], config["NER"]["uniqueLabels"], 1)
+    train(model, optimizer, lossFn, dataloaders, config["NER"]["uniqueLabels"], 1)

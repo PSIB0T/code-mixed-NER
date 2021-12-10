@@ -1,4 +1,5 @@
 from dataloader import filterDataset
+import json
 
 with open("config.json", "r") as f:
     configJSON = json.load(f)
