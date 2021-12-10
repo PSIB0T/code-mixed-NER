@@ -1,0 +1,36 @@
+{
+    "params": {
+        "train": {
+            "batch_size": 8,
+            "shuffle": true,
+            "num_workers": 0
+        },
+        "valid": {
+            "batch_size": 8,
+            "shuffle": true,
+            "num_workers": 0
+        },
+        "test": {
+            "batch_size": 8,
+            "shuffle": true,
+            "num_workers": 0
+        }
+    },
+    "config": {
+        "NER": {
+            "uniqueLabels": ["B-Loc", "B-Org", "B-Per", "I-Loc", "I-Org", "I-Per", "Other"],
+            "indices": [0, 1],
+            "filepath_train": "./GLUECoS/Data/Processed_Data/NER_EN_HI/Romanized/train.txt",
+            "filepath_valid": "./GLUECoS/Data/Processed_Data/NER_EN_HI/Romanized/validation.txt",
+            "filepath_test": "./GLUECoS/Data/Processed_Data/NER_EN_HI/Romanized/test.txt"
+        },
+        "POS": {
+            "uniqueLabels": ["U", "DM_DMQ", "PR_PRL", "CC", "RB_AMN", "~", "PR_PRC", "v_VAUX", "RP_INJ", "RP_RPD", "V_VM", "PR_PRF", "PR_PRQ", "N_NNP", "RD_PUNC", "@", "DM_DMI", "PR_PRP", "QT_QTO", "DM_DMD", "R_PRP", "QT_QTC", "JJ", "#", "$", "QT_QTF", "RP_NEG", "N_NN", "RD_RDF", "RD_UNK", "E", "DT", "N_NNV", "N_NST", "RD_SYM", "V_VAUX", "PSP", "RP_INTF", "RB_ALC"],
+            "indices": [0, 2],
+            "filepath_train": "./train_filtered.txt",
+            "filepath_valid": "./validation_filtered.txt",
+            "filepath_test":  "./test_filtered.txt"
+        }
+    },
+    "learning_rate": 2e-5
+}
