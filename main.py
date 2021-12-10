@@ -1,12 +1,18 @@
 import json
 import os
+import torch
+
+from torch import nn
+
 from dataloader import getDataset
+from model import BERTClass
 
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 def loadDataLoaders():
-    configJSON = json.load("./config.json")
+    with open("config.json", "r") as f:
+        configJSON = json.load(f)
     config = configJSON["config"]
     datasets = {
         "train": {},
@@ -33,7 +39,7 @@ def loadDataLoaders():
     return dataloaders
 
 def train(model, optimizer, lossFn, dataloaders, tag_vals, epoch=1):
-  model.train()
+    model.train()
 
 
     for _ in tqdm(range(epoch)):
@@ -50,7 +56,7 @@ def train(model, optimizer, lossFn, dataloaders, tag_vals, epoch=1):
             except StopIteration:
                 tasks.remove(task)
                 continue
-    
+
             optimizer.zero_grad()
 
             tag, label = data
@@ -103,23 +109,23 @@ def test(model, loader, tags_vals):
                 pred_sent, label_sent, tag_sent = [], [], []
                 tagString = ""
                 for p, l, t in zip(pred, label, tag):
-                if l != pad_token_label_id:
-                    pred_sent.append(p)
-                    label_sent.append(l)
+                    if l != pad_token_label_id:
+                        pred_sent.append(p)
+                        label_sent.append(l)
+                        if len(tagString) > 0:
+                            tag_sent.append(tagString)
+                        tagString = t
+                    elif t not in ['[CLS]', '[SEP]', '[PAD]']:
+                        if t.startswith("##"):
+                            t = t.lstrip("#")
+                        tagString += t
+                    
                     if len(tagString) > 0:
-                    tag_sent.append(tagString)
-                    tagString = t
-                elif t not in ['[CLS]', '[SEP]', '[PAD]']:
-                    if t.startswith("##"):
-                    t = t.lstrip("#")
-                    tagString += t
-                
-                if len(tagString) > 0:
-                    tag_sent.append(tagString)
-                if len(pred_sent) > 0:
-                    pred_list.append(pred_sent)
-                    label_list.append(label_sent)
-                    tag_list.append(tag_sent)
+                        tag_sent.append(tagString)
+                    if len(pred_sent) > 0:
+                        pred_list.append(pred_sent)
+                        label_list.append(label_sent)
+                        tag_list.append(tag_sent)
 
     pred_list = [[tags_vals[l] for l in p] for p in pred_list]
     label_list = [[tags_vals[l] for l in p] for p in label_list]
@@ -129,10 +135,11 @@ def test(model, loader, tags_vals):
     return tag_list, pred_list, label_list
 
 if __name__ == "__main__":
-    configJSON = json.load("./config.json")
+    with open("config.json", "r") as f:
+        configJSON = json.load(f)
 
     model  = BERTClass()
-    optimizer = torch.optim.Adam(params =  model.parameters(), lr=LEARNING_RATE)
+    optimizer = torch.optim.Adam(params =  model.parameters(), lr=configJSON["learning_rate"])
     lossFn = nn.NLLLoss()
 
     model.to(device)
